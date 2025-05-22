@@ -1,0 +1,2 @@
+option('vapi-dir', type: 'array', description: 'Extra vapi directories')
+option('gir-dir', type: 'array', description: 'Extra gir directories')

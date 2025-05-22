@@ -21,6 +21,19 @@ lib_dependency_name = extless_name.to_lower()
 typelib_name = extless_v_name + '.typelib'
 typelib_target_name = extless_name.to_lower() + '_typelib'
 
+girdirs = get_option('gir-dir')
+vapidirs = get_option('vapi-dir')
+
+girdir_args = []
+vapidir_args = []
+
+foreach gd : girdirs
+  girdir_args += '--girdir=' + gd
+endforeach
+foreach vd : vapidirs
+  vapidir_args += '--vapidir=' + vd
+endforeach
+
 dependencies = [
   dependency('glib-2.0'),
   dependency('gobject-2.0'),
@@ -44,6 +57,7 @@ lib = shared_library(
   dependencies: dependencies,
   install: true,
   install_dir: [ true, true, true, true ],
+  vala_args: [girdir_args, vapidir_args],
 )
 
 g_ir_compiler = find_program('g-ir-compiler')

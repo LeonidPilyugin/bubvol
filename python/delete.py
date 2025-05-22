@@ -70,6 +70,13 @@ class DeleteAction(AmlCore.Action):
         b_ys = ys[types == ps.bubble_index]
         b_zs = zs[types == ps.bubble_index]
 
+        x_lo = np.min(b_xs)
+        x_hi = np.max(b_xs)
+        y_lo = np.min(b_ys)
+        y_hi = np.max(b_ys)
+        z_lo = np.min(b_zs)
+        z_hi = np.max(b_zs)
+
         ids = []
         for i in range(len(types)):
             if types[i] == ps.bubble_index:
@@ -78,10 +85,16 @@ class DeleteAction(AmlCore.Action):
             if types[i] != ps.lattice_index:
                 continue
             x, y, z = xs[i], ys[i], zs[i]
-            dx, dy, dz = b_xs - x, b_ys - y, b_zs - z
-            drs = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
-            if np.min(drs) < ps.cut:
+            if all([
+                x_lo - ps.cut < x < x_hi + ps.cut,
+                y_lo - ps.cut < y < y_hi + ps.cut,
+                z_lo - ps.cut < z < z_hi + ps.cut,
+            ]):
                 ids.append(i)
+            # dx, dy, dz = b_xs - x, b_ys - y, b_zs - z
+            # drs = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
+            # if np.min(drs) < ps.cut:
+            #     ids.append(i)
 
         _xs = []
         _ys = []

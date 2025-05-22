@@ -18,6 +18,7 @@ namespace BubVol
         public int out_id = 4;
         public uint64 iterations = 0;
         public bool write_points = false;
+        public double factor = 1.0;
 
         public override ActionParams copy()
         {
@@ -36,6 +37,8 @@ namespace BubVol
 
             res.iterations = this.iterations;
             res.write_points = this.write_points;
+
+            res.factor = this.factor;
 
             return res;
         }
@@ -96,13 +99,10 @@ namespace BubVol
             return "";
         }
 
-        private bool is_probe_successful(Vector3 probe, List<Vector3?> lp, List<Vector3?> bp)
+        private bool is_probe_successful(Vector3 probe, List<Vector3?> lp, List<Vector3?> bp, double factor)
         {
-            Vector3 nearest_lp = {}, nearest_bp = {};
-            Vector3 temp = {};
-
-            temp = Vector3.substract(probe, lp.nth_data(0));
-            nearest_lp = lp.nth_data(0);
+            Vector3 temp = Vector3.substract(probe, lp.nth_data(0));
+            Vector3 nearest_lp = temp;
             double min_n = temp.norm();
             double n;
             foreach (unowned Vector3 v in lp)
@@ -117,7 +117,7 @@ namespace BubVol
             }
 
             temp = Vector3.substract(probe, bp.nth_data(0));
-            nearest_bp = bp.nth_data(0);
+            Vector3 nearest_bp = temp;
             min_n = temp.norm();
             foreach (unowned Vector3 v in bp)
             {
@@ -130,7 +130,7 @@ namespace BubVol
                 }
             }
 
-            return nearest_bp.norm() < nearest_lp.norm();
+            return nearest_bp.norm() < factor * nearest_lp.norm();
         }
 
         public override void perform(DataCollection data) throws ActionError
@@ -218,7 +218,7 @@ namespace BubVol
                     probe.set_element(i, GLib.Random.double_range(
                         bonds[0].get_element(i), bonds[1].get_element(i)));
 
-                if (this.is_probe_successful(probe, lattice_ps, bubble_ps))
+                if (this.is_probe_successful(probe, lattice_ps, bubble_ps, ps.factor))
                 {
                     if (ps.write_points)
                         hit_points[result.hit_points] = probe;

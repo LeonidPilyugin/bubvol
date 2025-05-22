@@ -4,8 +4,6 @@ import warnings
 with warnings.catch_warnings(action="ignore"):
     from gi.repository import AmlCore, AmlParticles, AmlTypes, AmlMath, AmlLammpsIO, AmlBox, Bubvol, GLib
 
-GLib.random_set_seed(1)
-
 from pathlib import Path
 import argparse
 from delete import DeleteParams, DeleteAction
@@ -14,6 +12,9 @@ def get_options():
     parser = argparse.ArgumentParser("bubvol")
     parser.add_argument("-f", type=Path, help="Path to the LAMMPS dump")
     parser.add_argument("-b", action="store_true", help="If set, binary LAMMPS dump is expected")
+    parser.add_argument("-i", type=int, help="Number of iterations", default=1000)
+    parser.add_argument("-s", type=int, help="Random seed", default=1)
+    parser.add_argument("-k", type=float, help="Factor", default=1.0)
 
     return parser.parse_args()
 
@@ -48,11 +49,12 @@ def delete_p(root):
 
     action.perform(root)
 
-def perform_mc(root, iter=1000, save=False):
+def perform_mc(root, iter=1000, save=False, factor=1.0):
     ps = Bubvol.VolumeParams()
     ps.particles_id = "particles"
     ps.iterations = iter
     ps.write_points = save
+    ps.factor = factor
 
     action = Bubvol.VolumeAction()
     action.set_params(ps)
@@ -84,6 +86,7 @@ def dump_lammps(root, file):
 if __name__ == "__main__":
     show_points = True
     opts = get_options()
+    GLib.random_set_seed(opts.s)
     root = AmlCore.DataCollection()
     print("Loading file ...")
     load_file(root, opts.b, opts.f)
@@ -92,10 +95,10 @@ if __name__ == "__main__":
     delete_p(root)
     dump_lammps(root, "del.lammpsdump")
     print("Calculating volume ...")
-    perform_mc(root, iter=10000, save=show_points)
+    perform_mc(root, iter=opts.i, save=show_points, factor=opts.k)
     print()
     print_results(root)
     print()
     if show_points:
-        print("Writing hit points")
+        print("Writing hit points ...")
         dump_lammps(root, "hit.lammpsdump")
