@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
 import warnings
-with warnings.catch_warnings(action="ignore"):
-    from gi.repository import AmlCore, AmlParticles, AmlTypes, AmlMath, AmlLammpsIO, AmlBox, Bubvol, GLib
+from gi.repository import AmlCore, AmlParticles, AmlTypes, AmlMath, AmlLammpsIO, AmlBox, Bubvol, GLib
 
 from pathlib import Path
 import argparse

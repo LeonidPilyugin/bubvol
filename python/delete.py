@@ -1,6 +1,5 @@
 import warnings
-with warnings.catch_warnings(action="ignore"):
-    from gi.repository import AmlCore, AmlParticles, AmlTypes, AmlMath, AmlBox
+from gi.repository import AmlCore, AmlParticles, AmlTypes, AmlMath, AmlBox
 import numpy as np
 
 class DeleteParams(AmlCore.ActionParams):
