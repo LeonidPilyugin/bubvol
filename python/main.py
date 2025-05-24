@@ -45,8 +45,8 @@ def load_file(root, is_binary, path, xs):
     y = particles.get_prop(xs[1])
     z = particles.get_prop(xs[2])
 
-    for x in xs:
-        particles.del_prop(x)
+    for _x in xs:
+        particles.del_prop(_x)
 
     particles.set_prop("x", x)
     particles.set_prop("y", y)
