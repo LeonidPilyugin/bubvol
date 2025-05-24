@@ -14,13 +14,14 @@ def get_options():
     parser.add_argument("-i", type=int, help="Number of iterations", default=1000)
     parser.add_argument("-s", type=int, help="Random seed", default=1)
     parser.add_argument("-k", type=float, help="Factor", default=1.0)
+    parser.add_argument("-d", type=str, nargs=3, help="Factor", default=["x", "y", "z"])
 
     return parser.parse_args()
 
-def load_file(root, is_binary, path):
+def load_file(root, is_binary, path, xs):
     ps = AmlLammpsIO.ReaderParams()
     ps.set_properties(
-        ["id", "type", "x", "y", "z"],
+        ["id", "type"] + xs,
         [
             AmlTypes.Int64Type.instance(),
             AmlTypes.Int64Type.instance(),
@@ -39,9 +40,22 @@ def load_file(root, is_binary, path):
 
     action.perform(root)
 
+    particles = root.get_element("particles")
+    x = particles.get_prop(xs[0])
+    y = particles.get_prop(xs[1])
+    z = particles.get_prop(xs[2])
+
+    for x in xs:
+        particles.del_prop(x)
+
+    particles.set_prop("x", x)
+    particles.set_prop("y", y)
+    particles.set_prop("z", z)
+
 def delete_p(root):
     ps = DeleteParams()
     ps.particles_id = "particles"
+    ps.x_o
 
     action = DeleteAction()
     action.set_params(ps)
@@ -88,7 +102,7 @@ if __name__ == "__main__":
     GLib.random_set_seed(opts.s)
     root = AmlCore.DataCollection()
     print("Loading file ...")
-    load_file(root, opts.b, opts.f)
+    load_file(root, opts.b, opts.f, opts.d)
     dump_lammps(root, "init.lammpsdump")
     print("Deleting particles ...")
     delete_p(root)
