@@ -55,7 +55,6 @@ def load_file(root, is_binary, path, xs):
 def delete_p(root):
     ps = DeleteParams()
     ps.particles_id = "particles"
-    ps.x_o
 
     action = DeleteAction()
     action.set_params(ps)
