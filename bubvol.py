@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import numpy as np
 from multiprocessing import Pool, cpu_count
 
@@ -22,13 +24,23 @@ def cut(gas_positions, lattice_positions, margin, box):
         0
     )
 
-def compute_volume(gas_positions, lattice_positions, factor, n, seed=-1):
-    np.random.seed(seed)
+class Mapper:
+    def __init__(self, factor, gas, lattice):
+        self.factor = factor
+        self.gas = gas
+        self.lattice = lattice
 
-    def is_hit(point):
-        r_g = np.min(np.linalg.norm(gas_positions - point))
-        r_l = np.min(np.linalg.norm(lattice_positions - point))
-        return r_g * factor < r_l
+    def __call__(self, arr):
+        return np.apply_along_axis(self.is_hit, 1, arr).sum()
+
+    def is_hit(self, point):
+        r_g = np.min(np.linalg.norm(self.gas - point))
+        r_l = np.min(np.linalg.norm(self.lattice - point))
+        return r_g * self.factor < r_l
+
+def compute_volume(gas_positions, lattice_positions, factor, n, seed=None):
+    if seed is not None:
+        np.random.seed(seed)
 
     workers = cpu_count()
 
@@ -46,8 +58,8 @@ def compute_volume(gas_positions, lattice_positions, factor, n, seed=-1):
     hit = None
     total = len(points)
     volume = np.prod(phi - plo)
+
     with Pool(workers) as pool:
-        hit = sum(pool.map(lambda arr: np.apply_along_axis(is_hit, 1, arr).sum(), points))
+        hit = sum(pool.map(Mapper(factor, gas_positions, lattice_positions), points))
 
     return hit / total * volume
-
