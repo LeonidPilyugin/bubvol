@@ -19,7 +19,7 @@ def cut(gas_positions, lattice_positions, margin, box):
         np.all(lattice_positions < del_lo, axis=1),
         0
     )
-    np.delete(
+    lattice_positions = np.delete(
         lattice_positions,
         np.all(lattice_positions > del_hi, axis=1),
         0
@@ -39,7 +39,7 @@ class Mapper:
     def is_hit(self, point):
         r_g = np.min(np.linalg.norm(self.gas - point, axis=1))
         r_l = np.min(np.linalg.norm(self.lattice - point, axis=1))
-        return r_g * self.factor < r_l
+        return r_g < r_l * self.factor
 
 def compute_volume(gas_positions, lattice_positions, factor, n, seed=None, workers=None):
     if seed is not None:
@@ -60,7 +60,7 @@ def compute_volume(gas_positions, lattice_positions, factor, n, seed=None, worke
 
 
     hit = 0
-    total = len(points)
+    total = sum([len(p) for p in points])
     volume = np.prod(phi - plo)
 
     with Pool(workers) as pool:
